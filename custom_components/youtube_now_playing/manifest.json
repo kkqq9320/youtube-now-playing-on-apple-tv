@@ -1,5 +1,5 @@
 {
-  "domain": "youtube_now",
+  "domain": "youtube_now_playing",
   "name": "YouTube Now Playing",
   "after_dependencies": ["apple_tv"],
   "codeowners": ["@kkqq9320"],
@@ -9,5 +9,5 @@
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

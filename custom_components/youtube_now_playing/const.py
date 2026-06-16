@@ -1,6 +1,6 @@
 from homeassistant.const import Platform
 
-DOMAIN = "youtube_now"
+DOMAIN = "youtube_now_playing"
 PLATFORMS = [Platform.SENSOR]
 
 CONF_COOKIE_FILE = "cookie_file"

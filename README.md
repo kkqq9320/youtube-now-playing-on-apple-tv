@@ -29,7 +29,7 @@ It replaces the earlier AppDaemon, `command_line`, `shell_command`, and automati
 
 ### Manual
 
-Copy `custom_components/youtube_now` into Home Assistant's `/config/custom_components/youtube_now`, then restart Home Assistant.
+Copy `custom_components/youtube_now_playing` into Home Assistant's `/config/custom_components/youtube_now_playing`, then restart Home Assistant.
 
 ## Configuration
 
@@ -71,12 +71,8 @@ The integration fetches YouTube history when the selected Apple TV is using YouT
 
 Thumbnails prefer `maxresdefault.jpg` when available, then fall back to the history thumbnail or `hqdefault.jpg`. When Apple TV later rewrites the media player state, the integration patches `entity_picture` only if it differs from the current YouTube Now Playing sensor thumbnail.
 
+If another device is playing YouTube with the same cookie file before the Apple TV media player's `entity_picture` is updated, the latest YouTube history item can belong to that other device. In that case, the Apple TV `entity_picture` can briefly or persistently show the other device's thumbnail.
+
 If the YouTube Now Playing sensor is `none`, check its attributes. `target_entity_id`, `youtube_app_id`, and `cookie_file` show the active settings, while `error` shows whether the integration is waiting for a matching Apple TV trigger or whether YouTube history fetching failed.
 
-If config flow labels show raw keys such as `create_standalone_sensor`, make sure the installed custom component includes `custom_components/youtube_now/translations/en.json`, restart Home Assistant, and hard refresh the browser.
-
-## Migration
-
-After this integration is working, disable or remove the old `command_line`, `shell_command`, and automation YAML to avoid duplicate sensors or duplicate `entity_picture` updates.
-
-If you previously installed the custom integration as `youtube_thumbnail`, remove the old **YouTube Thumbnail** integration entry and delete `/config/custom_components/youtube_thumbnail` before installing `/config/custom_components/youtube_now`. Home Assistant treats the new `youtube_now` domain as a separate integration.
+If config flow labels show raw keys such as `create_standalone_sensor`, make sure the installed custom component includes `custom_components/youtube_now_playing/translations/en.json`, restart Home Assistant, and hard refresh the browser.

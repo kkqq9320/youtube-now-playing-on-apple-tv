@@ -4,16 +4,16 @@ from pathlib import Path
 from unittest.mock import patch
 from urllib.error import URLError
 
-from custom_components.youtube_now import youtube
-from custom_components.youtube_now.youtube import (
+from custom_components.youtube_now_playing import youtube
+from custom_components.youtube_now_playing.youtube import (
     find_first_video_item,
     parse_video_item,
 )
-from custom_components.youtube_now.cookie_issue import (
+from custom_components.youtube_now_playing.cookie_issue import (
     cookie_fetch_succeeded,
     cookie_repair_issue_reason,
 )
-from custom_components.youtube_now.triggers import (
+from custom_components.youtube_now_playing.triggers import (
     should_fetch_for_state_change,
     should_patch_for_state_change,
 )
@@ -69,7 +69,7 @@ class YouTubeParserTest(unittest.TestCase):
         }
 
         with patch(
-            "custom_components.youtube_now.youtube.urlopen",
+            "custom_components.youtube_now_playing.youtube.urlopen",
             return_value=FakeResponse(),
         ):
             payload = parse_video_item(*find_first_video_item(data))
@@ -85,7 +85,7 @@ class YouTubeParserTest(unittest.TestCase):
 
     def test_prefers_max_thumbnail_when_available(self):
         with patch(
-            "custom_components.youtube_now.youtube.urlopen",
+            "custom_components.youtube_now_playing.youtube.urlopen",
             return_value=FakeResponse(),
         ) as urlopen:
             thumbnail = youtube.first_thumbnail("abc123")
@@ -95,7 +95,7 @@ class YouTubeParserTest(unittest.TestCase):
 
     def test_falls_back_when_max_thumbnail_is_missing(self):
         with patch(
-            "custom_components.youtube_now.youtube.urlopen",
+            "custom_components.youtube_now_playing.youtube.urlopen",
             side_effect=URLError("missing"),
         ):
             thumbnail = youtube.first_thumbnail(
@@ -253,14 +253,14 @@ class CookieRepairIssueTest(unittest.TestCase):
 
 class ConfigFlowSourceTest(unittest.TestCase):
     def test_config_flow_uses_legacy_entity_selector_filter_for_compatibility(self):
-        source = Path("custom_components/youtube_now/config_flow.py").read_text()
+        source = Path("custom_components/youtube_now_playing/config_flow.py").read_text()
 
         self.assertNotIn("EntityFilter(", source)
         self.assertIn('integration="apple_tv"', source)
         self.assertIn("domain=MEDIA_PLAYER_DOMAIN", source)
 
     def test_config_flow_exposes_options_flow_for_settings(self):
-        source = Path("custom_components/youtube_now/config_flow.py").read_text()
+        source = Path("custom_components/youtube_now_playing/config_flow.py").read_text()
 
         self.assertIn("async_get_options_flow", source)
         self.assertIn("class YouTubeThumbnailOptionsFlow", source)
@@ -268,11 +268,11 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("add_suggested_values_to_schema", source)
 
     def test_runtime_uses_options_over_initial_config_data(self):
-        init_source = Path("custom_components/youtube_now/__init__.py").read_text()
+        init_source = Path("custom_components/youtube_now_playing/__init__.py").read_text()
         coordinator_source = Path(
-            "custom_components/youtube_now/coordinator.py"
+            "custom_components/youtube_now_playing/coordinator.py"
         ).read_text()
-        sensor_source = Path("custom_components/youtube_now/sensor.py").read_text()
+        sensor_source = Path("custom_components/youtube_now_playing/sensor.py").read_text()
 
         self.assertIn("entry.options.get(", init_source)
         self.assertIn("CONF_MEDIA_PLAYER_ENTITY_ID", init_source)
@@ -283,13 +283,13 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("ATTR_TARGET_ENTITY_ID", sensor_source)
 
     def test_state_change_callback_is_marked_event_loop_safe(self):
-        source = Path("custom_components/youtube_now/__init__.py").read_text()
+        source = Path("custom_components/youtube_now_playing/__init__.py").read_text()
 
         self.assertIn("from homeassistant.core import callback", source)
         self.assertIn("@callback\n    def media_player_changed", source)
 
     def test_refresh_sequence_avoids_stale_fast_skip_results(self):
-        source = Path("custom_components/youtube_now/__init__.py").read_text()
+        source = Path("custom_components/youtube_now_playing/__init__.py").read_text()
 
         self.assertIn("asyncio.Lock()", source)
         self.assertIn("refresh_generation", source)
@@ -298,18 +298,18 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("should_patch_for_state_change", source)
         self.assertNotIn("PATCH_RETRY_SECONDS", source)
 
-    def test_manifest_uses_youtube_now_domain_and_name(self):
-        manifest = Path("custom_components/youtube_now/manifest.json").read_text()
+    def test_manifest_uses_youtube_now_playing_domain_and_name(self):
+        manifest = Path("custom_components/youtube_now_playing/manifest.json").read_text()
         translations = Path(
-            "custom_components/youtube_now/translations/en.json"
+            "custom_components/youtube_now_playing/translations/en.json"
         ).read_text(encoding="utf-8")
 
-        self.assertIn('"domain": "youtube_now"', manifest)
+        self.assertIn('"domain": "youtube_now_playing"', manifest)
         self.assertIn('"name": "YouTube Now Playing"', manifest)
         self.assertIn('"title": "YouTube Now Playing"', translations)
 
     def test_sensor_suggests_entity_id_from_selected_media_player(self):
-        source = Path("custom_components/youtube_now/sensor.py").read_text()
+        source = Path("custom_components/youtube_now_playing/sensor.py").read_text()
 
         self.assertIn("_attr_suggested_object_id", source)
         self.assertIn('f"youtube_now_{media_player_object_id}"', source)
@@ -317,7 +317,7 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("CONF_MEDIA_PLAYER_ENTITY_ID", source)
 
     def test_sensor_joins_selected_media_player_device_when_available(self):
-        source = Path("custom_components/youtube_now/sensor.py").read_text()
+        source = Path("custom_components/youtube_now_playing/sensor.py").read_text()
 
         self.assertIn("device_registry as dr", source)
         self.assertIn("entity_registry as er", source)
@@ -328,9 +328,9 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("device_entry.connections", source)
 
     def test_config_flow_asks_for_standalone_before_media_player_setup(self):
-        source = Path("custom_components/youtube_now/config_flow.py").read_text()
+        source = Path("custom_components/youtube_now_playing/config_flow.py").read_text()
         translations = Path(
-            "custom_components/youtube_now/translations/en.json"
+            "custom_components/youtube_now_playing/translations/en.json"
         ).read_text(encoding="utf-8")
 
         self.assertIn("CONF_CREATE_STANDALONE_SENSOR", source)
@@ -345,8 +345,8 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("polls YouTube history", translations)
 
     def test_custom_integration_uses_translations_directory(self):
-        translation_path = Path("custom_components/youtube_now/translations/en.json")
-        obsolete_strings_path = Path("custom_components/youtube_now/strings.json")
+        translation_path = Path("custom_components/youtube_now_playing/translations/en.json")
+        obsolete_strings_path = Path("custom_components/youtube_now_playing/strings.json")
 
         translations = json.loads(translation_path.read_text(encoding="utf-8"))
 
@@ -367,8 +367,8 @@ class ConfigFlowSourceTest(unittest.TestCase):
         )
 
     def test_custom_integration_includes_korean_translations(self):
-        english_path = Path("custom_components/youtube_now/translations/en.json")
-        korean_path = Path("custom_components/youtube_now/translations/ko.json")
+        english_path = Path("custom_components/youtube_now_playing/translations/en.json")
+        korean_path = Path("custom_components/youtube_now_playing/translations/ko.json")
 
         english = json.loads(english_path.read_text(encoding="utf-8"))
         korean = json.loads(korean_path.read_text(encoding="utf-8"))
@@ -398,13 +398,13 @@ class ConfigFlowSourceTest(unittest.TestCase):
 
     def test_poll_interval_is_configurable_for_standalone_sensor(self):
         config_flow_source = Path(
-            "custom_components/youtube_now/config_flow.py"
+            "custom_components/youtube_now_playing/config_flow.py"
         ).read_text()
         coordinator_source = Path(
-            "custom_components/youtube_now/coordinator.py"
+            "custom_components/youtube_now_playing/coordinator.py"
         ).read_text()
-        const_source = Path("custom_components/youtube_now/const.py").read_text()
-        sensor_source = Path("custom_components/youtube_now/sensor.py").read_text()
+        const_source = Path("custom_components/youtube_now_playing/const.py").read_text()
+        sensor_source = Path("custom_components/youtube_now_playing/sensor.py").read_text()
 
         self.assertIn("CONF_POLL_INTERVAL_SECONDS", const_source)
         self.assertIn("DEFAULT_POLL_INTERVAL_SECONDS = 60", const_source)
@@ -420,7 +420,7 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("ATTR_POLL_INTERVAL_SECONDS", sensor_source)
 
     def test_config_flow_sets_up_media_player_in_second_step(self):
-        source = Path("custom_components/youtube_now/config_flow.py").read_text()
+        source = Path("custom_components/youtube_now_playing/config_flow.py").read_text()
 
         self.assertIn("async_step_media_player", source)
         self.assertIn("user_input[CONF_MEDIA_PLAYER_ENTITY_ID]", source)
@@ -430,7 +430,7 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn('title="YouTube Now Playing"', source)
 
     def test_optional_media_player_selector_does_not_default_to_empty_string(self):
-        source = Path("custom_components/youtube_now/config_flow.py").read_text()
+        source = Path("custom_components/youtube_now_playing/config_flow.py").read_text()
 
         self.assertNotIn(
             'default=defaults.get(CONF_MEDIA_PLAYER_ENTITY_ID, "")', source
@@ -443,10 +443,10 @@ class ConfigFlowSourceTest(unittest.TestCase):
 
     def test_youtube_app_id_is_suggested_not_defaulted(self):
         config_flow_source = Path(
-            "custom_components/youtube_now/config_flow.py"
+            "custom_components/youtube_now_playing/config_flow.py"
         ).read_text()
-        init_source = Path("custom_components/youtube_now/__init__.py").read_text()
-        sensor_source = Path("custom_components/youtube_now/sensor.py").read_text()
+        init_source = Path("custom_components/youtube_now_playing/__init__.py").read_text()
+        sensor_source = Path("custom_components/youtube_now_playing/sensor.py").read_text()
 
         self.assertIn("vol.Optional(CONF_YOUTUBE_APP_ID", config_flow_source)
         self.assertIn("_normalize_user_input", config_flow_source)
@@ -465,9 +465,9 @@ class ConfigFlowSourceTest(unittest.TestCase):
         )
 
     def test_standalone_runtime_polls_with_configured_interval(self):
-        init_source = Path("custom_components/youtube_now/__init__.py").read_text()
+        init_source = Path("custom_components/youtube_now_playing/__init__.py").read_text()
         coordinator_source = Path(
-            "custom_components/youtube_now/coordinator.py"
+            "custom_components/youtube_now_playing/coordinator.py"
         ).read_text()
 
         self.assertIn("if not media_player_entity_id:", init_source)
@@ -480,7 +480,7 @@ class ConfigFlowSourceTest(unittest.TestCase):
 
     def test_coordinator_updates_cookie_repair_issue_after_fetch(self):
         coordinator_source = Path(
-            "custom_components/youtube_now/coordinator.py"
+            "custom_components/youtube_now_playing/coordinator.py"
         ).read_text()
 
         self.assertIn("async_update_cookie_repair_issue", coordinator_source)
@@ -491,9 +491,9 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("return payload", coordinator_source)
 
     def test_repairs_issue_created_for_cookie_problem_and_deleted_on_success(self):
-        source = Path("custom_components/youtube_now/repairs.py").read_text()
+        source = Path("custom_components/youtube_now_playing/repairs.py").read_text()
         cookie_issue_source = Path(
-            "custom_components/youtube_now/cookie_issue.py"
+            "custom_components/youtube_now_playing/cookie_issue.py"
         ).read_text()
 
         self.assertIn("cookie_repair_issue_reason", source)
@@ -511,7 +511,7 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("HTTP Error 403", cookie_issue_source)
 
     def test_repairs_flow_rechecks_cookie_file_and_clears_issue(self):
-        source = Path("custom_components/youtube_now/repairs.py").read_text()
+        source = Path("custom_components/youtube_now_playing/repairs.py").read_text()
 
         self.assertIn("class YouTubeCookieRepairFlow", source)
         self.assertIn("async_create_fix_flow", source)
@@ -526,12 +526,12 @@ class ConfigFlowSourceTest(unittest.TestCase):
 
     def test_cookie_repair_translations_exist(self):
         english = json.loads(
-            Path("custom_components/youtube_now/translations/en.json").read_text(
+            Path("custom_components/youtube_now_playing/translations/en.json").read_text(
                 encoding="utf-8"
             )
         )
         korean = json.loads(
-            Path("custom_components/youtube_now/translations/ko.json").read_text(
+            Path("custom_components/youtube_now_playing/translations/ko.json").read_text(
                 encoding="utf-8"
             )
         )
@@ -550,7 +550,7 @@ class ConfigFlowSourceTest(unittest.TestCase):
             self.assertNotIn("repairs", translations)
 
     def test_standalone_sensor_uses_fixed_entity_id_and_own_device(self):
-        source = Path("custom_components/youtube_now/sensor.py").read_text()
+        source = Path("custom_components/youtube_now_playing/sensor.py").read_text()
 
         self.assertIn("STANDALONE_SENSOR_OBJECT_ID", source)
         self.assertIn("if media_player_entity_id", source)
@@ -558,13 +558,13 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn("return _fallback_device_info(entry)", source)
 
     def test_sensor_sets_entity_id_without_device_name_prefix(self):
-        source = Path("custom_components/youtube_now/sensor.py").read_text()
+        source = Path("custom_components/youtube_now_playing/sensor.py").read_text()
 
         self.assertIn('self.entity_id = f"sensor.youtube_now_{media_player_object_id}"', source)
         self.assertIn('self.entity_id = "sensor.youtube_now_playing"', source)
 
     def test_docs_use_requested_github_repository_slug(self):
-        manifest = Path("custom_components/youtube_now/manifest.json").read_text()
+        manifest = Path("custom_components/youtube_now_playing/manifest.json").read_text()
         readme = Path("README.md").read_text()
 
         expected_slug = "youtube-now-playing-on-apple-tv"
@@ -578,11 +578,11 @@ class ConfigFlowSourceTest(unittest.TestCase):
     def test_hacs_metadata_and_brand_icon_exist(self):
         hacs = json.loads(Path("hacs.json").read_text(encoding="utf-8"))
         manifest = json.loads(
-            Path("custom_components/youtube_now/manifest.json").read_text(
+            Path("custom_components/youtube_now_playing/manifest.json").read_text(
                 encoding="utf-8"
             )
         )
-        icon = Path("custom_components/youtube_now/brand/icon.png")
+        icon = Path("custom_components/youtube_now_playing/brand/icon.png")
 
         self.assertEqual(hacs["name"], "YouTube Now Playing on Apple TV")
         self.assertIn("homeassistant", hacs)
@@ -595,6 +595,7 @@ class ConfigFlowSourceTest(unittest.TestCase):
             "https://github.com/kkqq9320/youtube-now-playing-on-apple-tv/issues",
         )
         self.assertEqual(manifest["codeowners"], ["@kkqq9320"])
+        self.assertEqual(manifest["version"], "0.1.1")
         self.assertTrue(icon.exists())
         self.assertEqual(icon.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
 
@@ -605,13 +606,25 @@ class ConfigFlowSourceTest(unittest.TestCase):
         self.assertIn(
             "https://github.com/kkqq9320/youtube-now-playing-on-apple-tv", readme
         )
+        self.assertIn("custom_components/youtube_now_playing", readme)
+        self.assertNotIn("custom_components/youtube_now`", readme)
         self.assertIn("/config/.youtube_cookies.txt", readme)
         self.assertIn("Netscape", readme)
         self.assertIn("incognito", readme.lower())
         self.assertIn("Get cookies.txt LOCALLY", readme)
         self.assertIn("Repair", readme)
         self.assertIn("cookies are credentials", readme.lower())
+        self.assertIn("same cookie file", readme)
+        self.assertIn("another device", readme)
+        self.assertIn("Apple TV", readme)
+
+    def test_readme_omits_migration_tips(self):
+        readme = Path("README.md").read_text(encoding="utf-8")
+
+        self.assertNotIn("## Migration", readme)
+        self.assertNotIn("youtube_thumbnail", readme)
 
 
 if __name__ == "__main__":
     unittest.main()
+
