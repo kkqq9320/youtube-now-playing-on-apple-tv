@@ -1,0 +1,91 @@
+{
+  "title": "YouTube Now Playing",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up YouTube Now Playing",
+        "description": "Choose whether to create one common now playing sensor without selecting an Apple TV. Leave this off to configure a specific Apple TV media player instead.",
+        "data": {
+          "create_standalone_sensor": "Create common YouTube Now Playing sensor"
+        },
+        "data_description": {
+          "create_standalone_sensor": "Creates one shared sensor, sensor.youtube_now_playing, that is not tied to an Apple TV."
+        }
+      },
+      "standalone": {
+        "title": "Set up common sensor",
+        "description": "The common sensor polls YouTube history on this interval. Updates can still lag behind playback when YouTube history itself is delayed.",
+        "data": {
+          "cookie_file": "YouTube cookie file",
+          "poll_interval_seconds": "Polling interval"
+        },
+        "data_description": {
+          "cookie_file": "Path inside Home Assistant, for example /config/.youtube_cookies.txt.",
+          "poll_interval_seconds": "How often sensor.youtube_now_playing polls YouTube history, in seconds."
+        }
+      },
+      "media_player": {
+        "title": "Set up Apple TV artwork patching",
+        "description": "Select an Apple TV media player to patch its artwork while it is playing YouTube.",
+        "data": {
+          "media_player_entity_id": "Apple TV media player",
+          "cookie_file": "YouTube cookie file",
+          "youtube_app_id": "YouTube app ID (optional)"
+        },
+        "data_description": {
+          "cookie_file": "Path inside Home Assistant, for example /config/.youtube_cookies.txt.",
+          "youtube_app_id": "Leave blank to store no fixed app ID. The suggested value is com.google.ios.youtube."
+        }
+      }
+    },
+    "error": {
+      "invalid_media_player": "Select a media_player entity provided by the Apple TV integration."
+    },
+    "abort": {
+      "already_configured": "This YouTube Now Playing target is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "YouTube Now Playing settings",
+        "description": "Update the optional Apple TV media player, YouTube cookie file, polling interval, or optional YouTube app ID.",
+        "data": {
+          "media_player_entity_id": "Apple TV media player (optional)",
+          "cookie_file": "YouTube cookie file",
+          "poll_interval_seconds": "Polling interval",
+          "youtube_app_id": "YouTube app ID (optional)"
+        },
+        "data_description": {
+          "media_player_entity_id": "When set, the integration follows this Apple TV and patches its entity picture. Clear it to use the common sensor only.",
+          "cookie_file": "Path inside Home Assistant, for example /config/.youtube_cookies.txt.",
+          "poll_interval_seconds": "Used by the common sensor when no Apple TV media player is selected.",
+          "youtube_app_id": "Leave blank to store no fixed app ID. The suggested value is com.google.ios.youtube."
+        }
+      }
+    },
+    "error": {
+      "invalid_media_player": "Select a media_player entity provided by the Apple TV integration."
+    }
+  },
+  "issues": {
+    "youtube_cookie_problem": {
+      "title": "YouTube cookies need to be refreshed",
+      "description": "YouTube Now Playing could not read watch history with the configured cookie file.\n\nCookie file: `{cookie_file}`\n\nError: `{error}`\n\nExport fresh YouTube cookies to the same file, then open this repair and submit it to check again. The repair also clears automatically after the next successful fetch.",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Check refreshed YouTube cookies",
+            "description": "Replace the cookie file, then submit to check YouTube history again.\n\nCookie file: `{cookie_file}`\n\nLast error: `{error}`"
+          }
+        },
+        "error": {
+          "still_invalid": "YouTube history still could not be read. Refresh the cookie file and try again."
+        },
+        "abort": {
+          "entry_not_found": "The YouTube Now Playing entry for this repair is no longer loaded."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "domain": "youtube_now",
+  "name": "YouTube Now Playing",
+  "after_dependencies": ["apple_tv"],
+  "codeowners": ["@kkqq9320"],
+  "config_flow": true,
+  "documentation": "https://github.com/kkqq9320/youtube-now-playing-on-apple-tv",
+  "issue_tracker": "https://github.com/kkqq9320/youtube-now-playing-on-apple-tv/issues",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.1.0"
+}
