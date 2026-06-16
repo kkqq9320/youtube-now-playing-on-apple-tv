@@ -7,7 +7,7 @@ It replaces the earlier AppDaemon, `command_line`, `shell_command`, and automati
 ## Features
 
 - Apple TV media-player mode filtered to entities from the Apple TV integration
-- `sensor.youtube_now_<media_player>` for each selected Apple TV, for example `sensor.youtube_now_4k`
+- `sensor.youtube_now_<media_player>` for each selected Apple TV, for example `sensor.youtube_now_apple_tv`
 - Optional standalone `sensor.youtube_now_playing` that is not tied to a media player
 - YouTube title, channel, video ID, duration, original URL, thumbnail, cookie state, and error attributes
 - `maxresdefault.jpg` thumbnail preference with fallback when max resolution is missing
